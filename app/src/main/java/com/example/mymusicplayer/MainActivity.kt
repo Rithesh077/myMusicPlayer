@@ -25,13 +25,25 @@ class MainActivity : AppCompatActivity() {
     private val songs = listOf(
         R.raw.relax_beat,
         R.raw.spirit_in_the_woods,
-        R.raw.valley_sunset
+        R.raw.valley_sunset,
+        R.raw.daredevil,
+        R.raw.my_mind_goes_wah_wah,
+        R.raw.awake,
+        R.raw.perfect_cell_theme,
+        R.raw.nightmare_king,
+        R.raw.l_no_theme
     )
 
     private val songNames = listOf(
         "Relax Beat",
         "Spirit in the Woods",
-        "Valley Sunset"
+        "Valley Sunset",
+        "Daredevil",
+        "My Mind Goes Wah Wah",
+        "Awake",
+        "Perfect Cell Theme",
+        "Nightmare King",
+        "L no Theme"
     )
 
     @SuppressLint("MissingInflatedId")
