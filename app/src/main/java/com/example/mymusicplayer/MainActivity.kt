@@ -23,11 +23,6 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
 
     private val songs = listOf(
-        R.raw.relax_beat,
-        R.raw.spirit_in_the_woods,
-        R.raw.valley_sunset,
-        R.raw.daredevil,
-        R.raw.my_mind_goes_wah_wah,
         R.raw.awake,
         R.raw.perfect_cell_theme,
         R.raw.nightmare_king,
@@ -35,21 +30,18 @@ class MainActivity : AppCompatActivity() {
     )
 
     private val songNames = listOf(
-        "Relax Beat",
-        "Spirit in the Woods",
-        "Valley Sunset",
-        "Daredevil",
-        "My Mind Goes Wah Wah",
         "Awake",
         "Perfect Cell Theme",
         "Nightmare King",
-        "L no Theme"
+        "L's Theme"
     )
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        showToast("onCreate Called")
 
         playButton = findViewById(R.id.playButton)
         nextButton = findViewById(R.id.nextButton)
@@ -74,13 +66,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        nextButton.setOnClickListener {
-            changeSong(1)
-        }
-
-        previousButton.setOnClickListener {
-            changeSong(-1)
-        }
+        nextButton.setOnClickListener { changeSong(1) }
+        previousButton.setOnClickListener { changeSong(-1) }
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -89,12 +76,9 @@ class MainActivity : AppCompatActivity() {
                     currentTime.text = formatTime(progress)
                 }
             }
-
             override fun onStartTrackingTouch(sb: SeekBar?) {}
             override fun onStopTrackingTouch(sb: SeekBar?) {}
         })
-
-        Toast.makeText(this, "onCreate Called", Toast.LENGTH_SHORT).show()
     }
 
     private fun initializePlayer() {
@@ -111,9 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         playButton.text = "Play"
 
-        mediaPlayer?.setOnCompletionListener {
-            changeSong(1)
-        }
+        mediaPlayer?.setOnCompletionListener { changeSong(1) }
     }
 
     private fun changeSong(direction: Int) {
@@ -141,15 +123,56 @@ class MainActivity : AppCompatActivity() {
         return String.format("%02d:%02d", minutes, seconds)
     }
 
+    // ----------------------- Added Lifecycle Methods ------------------------
+
+    override fun onStart() {
+        super.onStart()
+        showToast("onStart Called")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        showToast("onRestart Called")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        showToast("onResume Called")
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        showToast("onPostResume Called")
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        showToast("onPostCreate Called")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        showToast("onSaveInstanceState Called")
+        outState.putInt("songIndex", songIndex)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        showToast("onRestoreInstanceState Called")
+        songIndex = savedInstanceState.getInt("songIndex", 0)
+    }
+
     override fun onPause() {
         super.onPause()
         mediaPlayer?.pause()
         playButton.text = "Play"
+        showToast("onPause Called")
     }
 
     override fun onStop() {
         super.onStop()
         mediaPlayer?.pause()
+        showToast("onStop Called")
     }
 
     override fun onDestroy() {
@@ -157,5 +180,10 @@ class MainActivity : AppCompatActivity() {
         mediaPlayer?.release()
         mediaPlayer = null
         handler.removeCallbacksAndMessages(null)
+        showToast("onDestroy Called")
+    }
+
+    private fun showToast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }
