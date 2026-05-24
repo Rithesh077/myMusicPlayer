@@ -1,6 +1,8 @@
 package com.example.mymusicplayer
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -26,20 +28,25 @@ class MainActivity : AppCompatActivity() {
         R.raw.awake,
         R.raw.perfect_cell_theme,
         R.raw.nightmare_king,
-        R.raw.l_no_theme
+        R.raw.l_no_theme,
+        R.raw.propaganda
     )
 
     private val songNames = listOf(
         "Awake",
         "Perfect Cell Theme",
         "Nightmare King",
-        "L's Theme"
+        "L's Theme",
+        "Propaganda"
     )
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Set volume buttons to control music stream immediately
+        volumeControlStream = AudioManager.STREAM_MUSIC
 
         showToast("onCreate Called")
 
@@ -56,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         playButton.setOnClickListener {
             mediaPlayer?.let { mp ->
                 if (!mp.isPlaying) {
+                    // Request Audio Focus to get full system volume priority
+                    requestMusicFocus()
                     mp.start()
                     playButton.text = "Pause"
                     updateSeekBar()
@@ -81,8 +90,16 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun requestMusicFocus() {
+        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        // Gain focus so the system treats us as a primary media player
+        am.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+    }
+
     private fun initializePlayer() {
         mediaPlayer?.release()
+        
+        // Use basic create - exactly what the system player uses for internal playback
         mediaPlayer = MediaPlayer.create(this, songs[songIndex])
 
         songTitle.text = songNames[songIndex]
@@ -94,13 +111,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         playButton.text = "Play"
-
         mediaPlayer?.setOnCompletionListener { changeSong(1) }
     }
 
     private fun changeSong(direction: Int) {
         songIndex = (songIndex + direction + songs.size) % songs.size
         initializePlayer()
+        
+        requestMusicFocus()
         mediaPlayer?.start()
         playButton.text = "Pause"
         updateSeekBar()
@@ -122,8 +140,6 @@ class MainActivity : AppCompatActivity() {
         val seconds = (ms / 1000) % 60
         return String.format("%02d:%02d", minutes, seconds)
     }
-
-    // ----------------------- Added Lifecycle Methods ------------------------
 
     override fun onStart() {
         super.onStart()
